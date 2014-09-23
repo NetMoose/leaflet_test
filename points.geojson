@@ -1,0 +1,1 @@
+{"type":"FeatureCollection","features":[{"type":"Feature","properties":{"blue":"Уход туда-то","red":"Уход сюда-то","white":"Свободное волокно"},"geometry":{"type":"Point","coordinates":[142.7424967288971,46.92447239177869]}},{"type":"Feature","properties":{"blue":"Уход туда"},"geometry":{"type":"Point","coordinates":[142.74132728576657,46.92397412723839]}}]}

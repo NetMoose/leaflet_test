@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+ <link rel="stylesheet" href="leaflet.css" />
+<style>
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+}
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="../js/jquery.min.js"></script>
+  </head>
+  <body>
+<div id="map"></div>
+ <script src="leaflet.js"></script>
+<script>
+var map = L.map('map').setView([46.96850,142.76670], 10);
+
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '',
+    maxZoom: 18
+}).addTo(map);
+
+var pgeojsonFeature ='';
+var lgeojsonFeature ='';
+var gpoints;
+var glines;
+var bas;
+var overl;
+var c = L.layerGroup();
+
+
+$.getJSON("points.geojson", function(json){
+  pgeojsonFeature = json;
+  gpoints = L.geoJson(pgeojsonFeature,{
+    style: function(feature) {
+        switch (feature.properties.type) {
+            case 'red': return {weight: 3, color: "#ff0000", opacity: 1};
+            case 'green':   return {weight: 3,color: "#00ff00", opacity: 1};
+        }
+    },
+    onEachFeature: function (feature, layer) {
+	var s = '';
+	if(feature.geometry.type == "Point")
+	{
+	    if(feature.properties.blue)
+		s += "<strong>Синий модуль</strong>:"+feature.properties.blue+"<br>";
+	    if(feature.properties.red)
+		s += "<strong>Красный модуль</strong>:"+feature.properties.red+"<br>";
+	    if(feature.properties.green)
+		s += "<strong>Зеленый модуль</strong>:"+feature.properties.green+"<br>";
+	    if(feature.properties.white)
+		s += "<strong>Белый модуль</strong>:"+feature.properties.white+"<br>";
+	    layer.bindPopup(s);
+	}
+    }
+
+  });//.addTo(map);
+  c.addLayer(gpoints);
+
+
+  //map.fitBounds(pgeojsonFeature.getBounds());
+
+
+});
+$.getJSON("lines.geojson", function(json){
+  lgeojsonFeature = json;
+  glines = L.geoJson(lgeojsonFeature,{
+    style: function(feature) {
+        switch (feature.properties.type) {
+            case 'red': return {weight: 3, color: "#ff0000", opacity: 1};
+            case 'green':   return {weight: 3,color: "#00ff00", opacity: 1};
+        }
+    },
+    onEachFeature: function (feature, layer) {
+	if(feature.properties.title)
+	    layer.bindPopup(feature.properties.title);
+}
+
+  });//.addTo(map);
+  c.addLayer(glines);
+  bas = {
+    //"Магистраль": glines
+  };
+  overl = {
+    "Магистраль": glines,
+    "Узлы": gpoints
+  };
+
+  //map.fitBounds(lgeojsonFeature.getBounds());
+
+L.control.layers(bas, overl).addTo(map);
+
+});
+c.addTo(map);
+
+
+
+
+/*map.on('viewreset', function() {
+   var zoom = this.getZoom();
+   //alert(zoom);
+   if (zoom < 14){
+     geojsonFeature.setStyle(function(feature){ return {visibility:"hidden"}});
+	//alert('kjh');
+   }
+}, map);*/
+
+function onLocationFound(e) {
+    var radius = e.accuracy / 2;
+    L.marker(e.latlng).addTo(map)
+	.bindPopup("Вы где-то в районе " + radius + " метров от этой точки").openPopup();
+    //L.circle(e.latlng, radius).addTo(map);
+}
+
+function onLocationError(e) {
+    alert(e.message);
+}
+
+
+
+map.on('locationfound', onLocationFound);
+map.on('locationerror', onLocationError);
+map.locate({setView: true, maxZoom: 16});
+
+</script>
+
+  </body>
+
+</html>
